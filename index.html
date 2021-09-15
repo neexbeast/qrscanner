@@ -18,7 +18,6 @@
 
     </div>
     <script>
-        console.log(navigator.mediaDevices.getSupportedConstraints())
         const video = document.querySelector('#video')
         const constraints = {
             video: { facingMode: { exact: 'environment' } },
@@ -27,8 +26,23 @@
 
         navigator.mediaDevices.getUserMedia(constraints).then(stream => video.srcObject = stream);
 
+        const barcodeDetector = new BarcodeDetector({ formats: ['qr_code'] });
+        const detectCode = () => {
+            // Start detecting codes on to the video element
+            barcodeDetector.detect(video).then(codes => {
+                // If no codes exit function
+                if (codes.length === 0) return;
 
-
+                for (const barcode of codes) {
+                    // Log the barcode to the console
+                    alert(barcode.rawValue)
+                }
+            }).catch(err => {
+                // Log an error if one happens
+                console.error(err);
+            })
+        }
+        setInterval(detectCode, 1000);
     </script>
     <script src="js/bootstrap.js"></script>
     <script src="src/index.js"></script>
