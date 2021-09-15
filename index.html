@@ -12,22 +12,60 @@
 </head>
 
 <body class="d-flex align-items-center">
+    <button onclick="playVideo()" id="playVideo">Open scanner</button>
     <div class="container">
 
-        <video id="video" autoplay></video>
+        <video id="video" width="100%" height="100%"></video>
 
     </div>
     <script>
-        console.log(navigator.mediaDevices.getSupportedConstraints())
+        // $(document).ready(function () {
+        //     $('#playVideo').click(function {
+
+        //     })
+        // });
+        var myVideo = document.getElementById("video");
+        function playVideo() {
+            if (myVideo.paused) {
+                $("#video").show();
+                myVideo.play();
+            } else {
+                myVideo.pause();
+                $("#video").hide();
+            }
+        }
+        // Get the video element
         const video = document.querySelector('#video')
-        const constraints = {
-            video: true,
-            audio: false
+        // Check if device has camera
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            console.log(navigator.mediaDevices.getUserMedia)
+            // Use video without audio
+            const constraints = {
+                video: { facingMode: { exact: "environment" } },
+                audio: false
+            }
+
+            // Start video stream
+            navigator.mediaDevices.getUserMedia(constraints).then(stream => video.srcObject = stream);
         }
 
-        navigator.mediaDevices.getUserMedia(constraints).then(stream => video.srcObject = stream);
+        const barcodeDetector = new BarcodeDetector({ formats: ['qr_code'] });
+        const detectCode = () => {
+            // Start detecting codes on to the video element
+            barcodeDetector.detect(video).then(codes => {
+                // If no codes exit function
+                if (codes.length === 0) return;
 
-
+                for (const barcode of codes) {
+                    // Log the barcode to the console
+                    console.log(barcode)
+                }
+            }).catch(err => {
+                // Log an error if one happens
+                console.error(err);
+            })
+        }
+        setInterval(detectCode, 1000);
 
     </script>
     <script src="js/bootstrap.js"></script>
